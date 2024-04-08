@@ -1,0 +1,17 @@
+<div class="navigation-container">
+    <mat-toolbar color="primary" class="main-toolbar">
+        <span class="main-toolbar-left">
+            <img src="assets/images/marsh-map-circle-200.png" alt="NJ, Naturally logo" class="main-logo" />
+            <span class="title-text">NJ, Naturally</span>
+            <a routerLink="/map" type="button" color="primary" aria-label="Map button" mat-flat-button>
+                Map</a>
+        </span>
+        <span>
+            <a routerLink="/about" type="button" aria-label="About button" mat-icon-button>
+                <mat-icon aria-hidden="false" aria-label="info icon">info</mat-icon></a>
+        </span>
+    </mat-toolbar>
+    <div>
+        <router-outlet></router-outlet>
+    </div>
+</div>
