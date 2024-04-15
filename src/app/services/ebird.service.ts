@@ -44,7 +44,7 @@ export class EbirdService {
   getHotspotPopupContent(feature: any): string {
     let attributes = feature.graphic.attributes;
     const content: string = `<div><b>Latest Observation Date:</b> {LastObservationDate}</div>
-    <div><b>Specias All Time:</b> {NumSpeciesAllTime}</div>
+    <div><b>Species All Time:</b> {NumSpeciesAllTime}</div>
     <div><b>eBird.org Source:</b> <a href="https://ebird.org/hotspot/${attributes.HotspotId}" target="_blank">Hotspot Details</a></div>`;
     return content;
   }
