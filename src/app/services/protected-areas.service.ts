@@ -1,8 +1,9 @@
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { on } from '@arcgis/core/core/reactiveUtils';
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 import { EbirdService } from './ebird.service';
+import { TideCurrentService } from './tide-current.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,8 +12,13 @@ export class ProtectedAreasService {
   IucnCategoryMap = new Map<string, string>();
   hotspotsLayer: FeatureLayer | undefined = undefined;
   hotspotActionId: string = "nearby-hotspots";
+  hotspotsSubscription: Subscription | undefined = undefined;
+  tideStationsLayer: FeatureLayer | undefined = undefined;
+  tideActionId: string = "nearby-tide-stations";
+  tideSubscription: Subscription | undefined = undefined;
 
-  constructor(private ebirdService: EbirdService) {
+  constructor(private ebirdService: EbirdService,
+      private tideCurrentService: TideCurrentService) {
     this.initializeCategoryMap();
   }
   initializeCategoryMap(): void {
@@ -32,14 +38,19 @@ export class ProtectedAreasService {
     const findHotspotsAction = {
       title: "Find Hotspots",
       id: this.hotspotActionId,
-      image: "/assets/favicon-16x16.png"
+      image: "/assets/images/aab-16.png"
+    };
+    const findTideStationsAction = {
+      title: "Find Tide Stations",
+      id: this.tideActionId,
+      image: "/assets/images/noaa-16x16.png"
     };
 
     // Define the popup template with function that returns the content based on the feature attributes
     const template = {
       title: "{name}",
       content: this.getContent.bind(this),
-      actions: [findHotspotsAction]
+      actions: [findHotspotsAction, findTideStationsAction]
     };
     const protectedAreasRenderer = {
       type: "simple",
@@ -48,8 +59,8 @@ export class ProtectedAreasService {
         style: "solid",
         color: [100, 180, 100, 0.5],
         outline: {
-          color: "#118811",
-          width: "1px"
+          color: [40, 100, 40, 0.8],
+          width: 1
         }
       }
     };
@@ -73,20 +84,44 @@ export class ProtectedAreasService {
     return this.ebirdService.getNearbyHotspotsLayer(popup.location.latitude, popup.location.longitude, 14);
   }
 
+  // manage the tide stations layer
+  updateTideStationsLayer(view: any): void {
+    let layer = this.tideCurrentService.getNearbyStationsLayer(view.popup.location.latitude, view.popup.location.longitude);
+    if (this.tideStationsLayer) {
+      view.map.remove(this.tideStationsLayer);
+    }
+    if (layer && layer.source?.length > 0) {
+      this.tideStationsLayer = layer;
+      view.map.add(layer);
+    } else {
+      this.tideStationsLayer = undefined;
+    }
+  }
+
+  // manage the eBird hotspots layer
+  updateHotspotsLayer(view: any): void {
+    this.hotspotsSubscription?.unsubscribe();
+    this.hotspotsSubscription = this.findHotspots(view.popup).subscribe((layer) => {
+      if (this.hotspotsLayer) {
+        view.map.remove(this.hotspotsLayer);
+      }
+      if (layer && layer.source?.length > 0) {
+        this.hotspotsLayer = layer;
+        view.map.add(layer);
+      } else {
+        this.tideStationsLayer = undefined;
+      }
+    });
+  }
+
   // add the listener for the find hotspots action button
   initializePopup(view: any) {
     this.ebirdService.initializePopup(view);
     on(() => view.popup, "trigger-action", (event) => {
       if (event.action.id === this.hotspotActionId) {
-        this.findHotspots(view.popup).subscribe((layer) => {
-          if (this.hotspotsLayer) {
-            view.map.remove(this.hotspotsLayer);
-          }
-          if (layer) {
-            this.hotspotsLayer = layer;
-            view.map.add(layer);
-          }
-        });
+        this.updateHotspotsLayer(view);
+      } else if (event.action.id === this.tideActionId) {
+        this.updateTideStationsLayer(view);
       }
     });
   }

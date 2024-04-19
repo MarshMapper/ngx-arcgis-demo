@@ -72,7 +72,7 @@ export class EbirdService {
       const getObservationsAction = {
         title: "Get Observations",
         id: this.observationsActionId,
-        image: "/assets/favicon-16x16.png"
+        image: "/assets/images/aab-32.png"
       };
 
       let ebirdTemplate = {
