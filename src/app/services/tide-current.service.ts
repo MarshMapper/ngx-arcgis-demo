@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { GeoDistanceService } from './geo-distance.service';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 import { SimpleMarkerSymbol } from '@arcgis/core/symbols';
 
@@ -12,6 +12,9 @@ export class TideCurrentService {
   allStations: any[] = [];
   filteredStationSubject: Subject<any[]> = new Subject<any[]>();
   featureLayerSubect: Subject<FeatureLayer | undefined> = new Subject<FeatureLayer | undefined>();
+  tideStationsLayer: FeatureLayer | undefined = undefined;
+  tideSubscription: Subscription | undefined = undefined;
+  tideActionId: string = "nearby-tide-stations";
 
   constructor(private httpClient: HttpClient,
     private geoDistanceService: GeoDistanceService) { 
@@ -27,6 +30,16 @@ export class TideCurrentService {
     });
   }
 
+  getFindStationsAction(): any {
+    return {
+      title: "Find Tide Stations",
+      id:  this.tideActionId,
+      image: "/assets/images/noaa-16x16.png"
+    };
+  }
+  getFindStationsActionId(): string {
+    return this.tideActionId;
+  }
   stationsWithinRadius(latitude: number, longitude: number): any[] {
     let filteredStations: any[] = this.allStations.filter((station) => {
       return this.geoDistanceService.isPointWithinRadius(latitude, longitude, station.lat, station.lng);
@@ -116,5 +129,18 @@ export class TideCurrentService {
       copyright: "noaa.gov"
     });
     return layer;
+  }
+  // manage the tide stations layer
+  updateTideStationsLayer(view: any): void {
+    let layer = this.getNearbyStationsLayer(view.popup.location.latitude, view.popup.location.longitude);
+    if (this.tideStationsLayer) {
+      view.map.remove(this.tideStationsLayer);
+    }
+    if (layer && layer.source?.length > 0) {
+      this.tideStationsLayer = layer;
+      view.map.add(layer);
+    } else {
+      this.tideStationsLayer = undefined;
+    }
   }
 }

@@ -4,6 +4,7 @@ import { defineCustomElements as defineCalciteElements } from "@esri/calcite-com
 import { ComponentLibraryModule } from '@arcgis/map-components-angular';
 import { CalciteComponentsModule } from '@esri/calcite-components-angular';
 import { ProtectedAreasService } from '../../services/protected-areas.service';
+import { UnprotectedAreasService } from '../../services/unprotected-areas.service';
 
 @Component({
   selector: 'app-arc-map',
@@ -14,12 +15,16 @@ import { ProtectedAreasService } from '../../services/protected-areas.service';
 })
 export class ArcMapComponent implements OnInit {
   public isLoading: boolean = true;
-  constructor(private protectedAreasService: ProtectedAreasService) { }
+  constructor(private protectedAreasService: ProtectedAreasService,
+    private unprotectedAreasService: UnprotectedAreasService
+  ) { }
 
   arcgisViewReadyChange(event: any) {
     this.isLoading = false;
     const mapElement = event.target;
 
+    mapElement.map.add(this.unprotectedAreasService.createImageryTileLayer());
+    this.unprotectedAreasService.initializePopup(mapElement.view);
     mapElement.map.add(this.protectedAreasService.createFeatureLayer());
     this.protectedAreasService.initializePopup(mapElement.view);
   }

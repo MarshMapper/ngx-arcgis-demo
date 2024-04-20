@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, Subscription } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { SimpleMarkerSymbol } from '@arcgis/core/symbols';
 import PopupTemplate from '@arcgis/core/PopupTemplate';
@@ -21,6 +21,9 @@ export class EbirdService {
   ebirdApiKey: string = '';
   featureLayerSubect: Subject<FeatureLayer | undefined> = new Subject<FeatureLayer | undefined>();
   observationsActionId: string = "recent-observations";
+  findHotspotsActionId: string = "nearby-hotspots";
+  hotspotsLayer: FeatureLayer | undefined = undefined;
+  hotspotsSubscription: Subscription | undefined = undefined;
 
   constructor(private httpClient: HttpClient) {
     this.ebirdApiKey = environment.eBirdApiKey;
@@ -45,8 +48,18 @@ export class EbirdService {
     let attributes = feature.graphic.attributes;
     const content: string = `<div><b>Latest Observation Date:</b> {LastObservationDate}</div>
     <div><b>Species All Time:</b> {NumSpeciesAllTime}</div>
-    <div><b>eBird.org Source:</b> <a href="https://ebird.org/hotspot/${attributes.HotspotId}" target="_blank">Hotspot Details</a></div>`;
+    <div><b>eBird.org Source:</b> <a href="https://ebird.org/hotspot/${attributes.HotspotId}/bird-list" target="_blank">Hotspot Details</a></div>`;
     return content;
+  }
+  getFindHotspotsAction(): any {
+    return {
+      title: "Find Hotspots",
+      id: this.findHotspotsActionId,
+      image: "/assets/images/aab-16.png"
+    };
+  }
+  getFindHotspotsActionId(): string {
+    return this.findHotspotsActionId;
   }
   // Get a FeatureLayer of eBird hotspots near a given latitude and longitude
   getNearbyHotspotsLayer(latitude: number, longitude: number, distance: number = 10): Observable<FeatureLayer | undefined> {
@@ -127,6 +140,26 @@ export class EbirdService {
     });
     return this.featureLayerSubect.asObservable();
   }
+  findHotspots(popup: any): Observable<FeatureLayer | undefined> {
+    return this.getNearbyHotspotsLayer(popup.location.latitude, popup.location.longitude, 14);
+  }
+
+  // manage the eBird hotspots layer
+  updateHotspotsLayer(view: any): void {
+    this.hotspotsSubscription?.unsubscribe();
+    this.hotspotsSubscription = this.findHotspots(view.popup).subscribe((layer) => {
+      if (this.hotspotsLayer) {
+        view.map.remove(this.hotspotsLayer);
+      }
+      if (layer && layer.source?.length > 0) {
+        this.hotspotsLayer = layer;
+        view.map.add(layer);
+      } else {
+        this.hotspotsLayer = undefined;
+      }
+    });
+  }
+
   // add the listener for the get observations action button
   initializePopup(view: any) {
     on(() => view.popup, "trigger-action", (event) => {
