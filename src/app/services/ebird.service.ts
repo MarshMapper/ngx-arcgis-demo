@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Observable, Subject, Subscription } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { SimpleMarkerSymbol } from '@arcgis/core/symbols';
@@ -22,7 +23,9 @@ export class EbirdService {
   hotspotsLayer: FeatureLayer | undefined = undefined;
   hotspotsSubscription: Subscription | undefined = undefined;
 
-  constructor(private httpClient: HttpClient) {
+  constructor(private httpClient: HttpClient,
+    private snackBar: MatSnackBar
+  ) {
     this.ebirdApiKey = environment.eBirdApiKey;
   }
   // Get eBird hotspots near a given latitude and longitude
@@ -79,6 +82,12 @@ export class EbirdService {
           }
         });
       });
+      if (features.length == 0) {
+        this.snackBar.open("No eBird hotspots found within the specified radius.", "Close", {
+          duration: 5000
+        });
+      }
+  
       const getObservationsAction = {
         title: "Get Observations",
         id: this.observationsActionId,
