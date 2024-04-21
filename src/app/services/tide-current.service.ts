@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { GeoDistanceService } from './geo-distance.service';
 import { HttpClient } from '@angular/common/http';
-import { Subject, Subscription } from 'rxjs';
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 import { SimpleMarkerSymbol } from '@arcgis/core/symbols';
 
@@ -10,14 +10,12 @@ import { SimpleMarkerSymbol } from '@arcgis/core/symbols';
 })
 export class TideCurrentService {
   allStations: any[] = [];
-  filteredStationSubject: Subject<any[]> = new Subject<any[]>();
-  featureLayerSubect: Subject<FeatureLayer | undefined> = new Subject<FeatureLayer | undefined>();
   tideStationsLayer: FeatureLayer | undefined = undefined;
-  tideSubscription: Subscription | undefined = undefined;
   tideActionId: string = "nearby-tide-stations";
 
   constructor(private httpClient: HttpClient,
-    private geoDistanceService: GeoDistanceService) { 
+    private geoDistanceService: GeoDistanceService,
+    private snackBar: MatSnackBar) { 
     // get the tide stations from the NOAA API
     this.getTideStations();
   }
@@ -65,6 +63,12 @@ export class TideCurrentService {
     let features: any[] = [];
     let layer: FeatureLayer | undefined = undefined;
 
+    if (!this.allStations || this.allStations.length == 0) {
+      this.snackBar.open("Tide stations are not available. Please try again later.", "Close", {
+        duration: 5000
+      });
+      return layer;
+    }
     this.stationsWithinRadius(latitude, longitude).forEach((station: any) => {
       features.push({
         geometry: {
@@ -80,6 +84,12 @@ export class TideCurrentService {
         }
       });
     });
+    if (features.length == 0) {
+      this.snackBar.open("No tide stations found within the specified radius.", "Close", {
+        duration: 5000
+      });
+      return layer;
+    }
     let stationTemplate = {
       title: "{Name}",
       content: this.getStationPopupContent.bind(this)

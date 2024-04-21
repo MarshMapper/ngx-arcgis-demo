@@ -1,11 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Observable, Subject, Subscription } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { SimpleMarkerSymbol } from '@arcgis/core/symbols';
-import PopupTemplate from '@arcgis/core/PopupTemplate';
-import PopupTemplateAction from '@arcgis/core/PopupTemplate';
-
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 import { on } from '@arcgis/core/core/reactiveUtils';
 
@@ -25,7 +23,9 @@ export class EbirdService {
   hotspotsLayer: FeatureLayer | undefined = undefined;
   hotspotsSubscription: Subscription | undefined = undefined;
 
-  constructor(private httpClient: HttpClient) {
+  constructor(private httpClient: HttpClient,
+    private snackBar: MatSnackBar
+  ) {
     this.ebirdApiKey = environment.eBirdApiKey;
   }
   // Get eBird hotspots near a given latitude and longitude
@@ -82,6 +82,12 @@ export class EbirdService {
           }
         });
       });
+      if (features.length == 0) {
+        this.snackBar.open("No eBird hotspots found within the specified radius.", "Close", {
+          duration: 5000
+        });
+      }
+  
       const getObservationsAction = {
         title: "Get Observations",
         id: this.observationsActionId,
@@ -103,7 +109,26 @@ export class EbirdService {
       });
       const hotspotRenderer = {
         type: "simple",
-        symbol: hotspotSymbol
+        symbol: hotspotSymbol,
+        visualVariables: [
+          {
+            type: "color",
+            field: "NumSpeciesAllTime",
+            legendOptions: {
+              title: "Number of Species",
+              showLegend: true
+            },
+            stops: [
+              { value: 0, color: "#bbbbbb" },
+              { value: 20, color: "#aaaadd" },
+              { value: 100, color: "#aadddd" },
+              { value: 150, color: "#ddccaa" },
+              { value: 200, color: "#ddaaaa" },
+              { value: 300, color: "#dd8888" },
+              { value: 400, color: "#dd2222" }
+            ]
+          }
+        ]
       };
       layer = new FeatureLayer({
         source: features,
