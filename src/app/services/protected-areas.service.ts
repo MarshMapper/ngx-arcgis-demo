@@ -52,6 +52,7 @@ export class ProtectedAreasService {
       url: "https://services5.arcgis.com/Mj0hjvkNtV7NRhA7/arcgis/rest/services/WDPA_v0/FeatureServer/1",
       outFields: ["NAME", "DESIG", "IUCN_CAT"],
       renderer: <any>protectedAreasRenderer,
+      title: "World Database of Protected Areas (WDPA)",
       popupTemplate: <any>template
     });
   }

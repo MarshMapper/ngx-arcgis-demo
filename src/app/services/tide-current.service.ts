@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { GeoDistanceService } from './geo-distance.service';
 import { HttpClient } from '@angular/common/http';
-import { Subject, Subscription } from 'rxjs';
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 import { SimpleMarkerSymbol } from '@arcgis/core/symbols';
 
@@ -10,10 +9,7 @@ import { SimpleMarkerSymbol } from '@arcgis/core/symbols';
 })
 export class TideCurrentService {
   allStations: any[] = [];
-  filteredStationSubject: Subject<any[]> = new Subject<any[]>();
-  featureLayerSubect: Subject<FeatureLayer | undefined> = new Subject<FeatureLayer | undefined>();
   tideStationsLayer: FeatureLayer | undefined = undefined;
-  tideSubscription: Subscription | undefined = undefined;
   tideActionId: string = "nearby-tide-stations";
 
   constructor(private httpClient: HttpClient,
