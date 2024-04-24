@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { GeoDistanceService } from './geo-distance.service';
 import { HttpClient } from '@angular/common/http';
+import esriRequest from '@arcgis/core/request';
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 import { SimpleMarkerSymbol } from '@arcgis/core/symbols';
 
@@ -15,7 +16,8 @@ export class TideCurrentService {
 
   constructor(private httpClient: HttpClient,
     private geoDistanceService: GeoDistanceService,
-    private snackBar: MatSnackBar) { 
+    private snackBar: MatSnackBar
+  ) { 
     // get the tide stations from the NOAA API
     this.getTideStations();
   }
@@ -45,17 +47,29 @@ export class TideCurrentService {
     return filteredStations;
   }
 
-  getStationPopupContent(feature: any): string {
-    const stationBaseUrl: string = "https://tidesandcurrents.noaa.gov/stationhome.html?id=";
+  getStationPopupContent(feature: any): Promise<string> {
     let attributes = feature.graphic.attributes;
-    let stationType: string = attributes.StationType == "S" ? "Subordinate" : "Reference";
-    let url: string = `${stationBaseUrl}${attributes.StationId}`;
-    let referenceUrl: string = `${stationBaseUrl}${attributes.ReferenceId}`;
-    let referenceSegment: string = attributes.ReferenceId ? `<div><b>Reference Station Id:</b> <a href="${referenceUrl}">{ReferenceId}</a></div>` : "";
-    const content: string = `<div><b>Station Id:</b> <a href="${url}">{StationId}</a></div>
-    ${referenceSegment}
-    <div><b>Station Type:</b> ${stationType}</div>`;
-    return content;
+    let url: string = `https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?date=today&station=${attributes.StationId}&product=predictions&datum=MLLW&time_zone=lst_ldt&interval=hilo&units=english&application=DataAPI_Sample&format=json`;
+    return esriRequest(url)
+      .then((response: any) => {
+        let predictions: any[] = response.data.predictions;
+        let predictionsContent: string = `<div><b>Today's High and Low Tides:</b></div>
+          <table style="border-spacing: 6px;"><tr style="color: #123c74;"><th style="text-align:left;">Type</th><th style="text-align:left;">Time</th><th>Water Level (ft)</th></tr>`;
+        predictions.forEach((prediction: any) => {
+          predictionsContent += `<tr><td>${prediction.type == 'L' ? 'Low' : 'High'}</td>`;
+          predictionsContent += `<td>${prediction.t}</td><td style="text-align:right;">${prediction.v}</td>`;
+        });
+        predictionsContent += "</table>";
+        const stationBaseUrl: string = "https://tidesandcurrents.noaa.gov/stationhome.html?id=";
+        let stationType: string = attributes.StationType == "S" ? "Subordinate" : "Reference";
+        let url: string = `${stationBaseUrl}${attributes.StationId}`;
+        let referenceUrl: string = `${stationBaseUrl}${attributes.ReferenceId}`;
+        let referenceSegment: string = attributes.ReferenceId ? `<div><b>Reference Station Id:</b> <a href="${referenceUrl}">{ReferenceId}</a></div>` : "";
+        const content: string = `<div><b>Station Id:</b> <a href="${url}">{StationId}</a></div>
+        ${referenceSegment}
+        <div><b>Station Type:</b> ${stationType}</div>`;
+        return predictionsContent + content;
+      });
   }
 
   // Get a FeatureLayer of tide prediction stations near a given latitude and longitude
