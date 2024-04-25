@@ -12,7 +12,9 @@ import { SimpleMarkerSymbol } from '@arcgis/core/symbols';
 export class TideCurrentService {
   allStations: any[] = [];
   tideStationsLayer: FeatureLayer | undefined = undefined;
+  tideStationMap: Map<string, any> = new Map<string, any>();
   tideActionId: string = "nearby-tide-stations";
+  maximumPredictions: number = 2;
 
   constructor(private httpClient: HttpClient,
     private geoDistanceService: GeoDistanceService,
@@ -22,11 +24,17 @@ export class TideCurrentService {
     this.getTideStations();
   }
 
+  // get all stations that offer tide predictions.  API does not allow filtering by type, but there are 
+  // about 3300 stations, which is manageable.  typically this data is available before the map loads 
+  // completely, but if not, the user will be told to try again later.
   getTideStations(): void {
     let url: string = `https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/stations.json?type=tidepredictions&units=english`;
 
     this.httpClient.get(url).subscribe((response: any) => {
       this.allStations = response.stations;
+      this.allStations.forEach((station: any) => {
+        this.tideStationMap.set(station.id, station);
+      });
     });
   }
 
@@ -47,28 +55,59 @@ export class TideCurrentService {
     return filteredStations;
   }
 
+  getFormattedDate(date: Date): string {
+    let day = date.getDate().toString().padStart(2, '0');
+    let month = (date.getMonth() + 1).toString().padStart(2, '0');
+    let hours = date.getHours().toString().padStart(2, '0');
+    let minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${date.getFullYear()}${month}${day} ${hours}:${minutes}`;
+  }
+
+  // get the URL for the next few tide predictions for a given station
+  getPredictionsUrl(stationId: string): string {
+    let now = new Date();
+    let currentDate: string = this.getFormattedDate(now);
+    const staticUrlPart: string = "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&datum=MLLW&time_zone=lst_ldt&interval=hilo&units=english&format=json";
+    return `${staticUrlPart}&begin_date=${currentDate}&range=18&station=${stationId}`;
+  }
+
+  // format the upcoming tide predictions for display in the popup
+  getPredictionsContent(predictions: any[]): string {
+    let predictionsContent: string = `<div><b>Next High and Low Tides:</b></div>
+      <table class="tide-table"><tr class="tide-header"><th class="tide-cell">Type</th><th class="tide-cell">Time</th><th class="tide-cell">Water Level (ft)</th></tr>`;
+    predictions.forEach((prediction: any) => {
+      predictionsContent += `<tr><td class="tide-cell">${prediction.type == 'L' ? 'Low' : 'High'}</td>`;
+      predictionsContent += `<td class="tide-cell">${prediction.t}</td><td class="tide-cell number-cell">${prediction.v}</td>`;
+    });
+    predictionsContent += "</table>";
+    return predictionsContent;
+  }
+  // format the tide station information for display in the popup
+  getStationInfoContent(attributes: any): string {
+    const stationBaseUrl: string = "https://tidesandcurrents.noaa.gov/stationhome.html?id=";
+    let stationType: string = attributes.StationType == "S" ? "Subordinate" : "Reference";
+    let url: string = `${stationBaseUrl}${attributes.StationId}`;
+    let referenceUrl: string = `${stationBaseUrl}${attributes.ReferenceId}`;
+    let referenceSegment: string = '';
+    if (attributes.ReferenceId) {
+      let referenceStation: any = this.tideStationMap.get(attributes.ReferenceId);
+      referenceSegment = `<div><b>Reference Station:</b> <a href="${referenceUrl}">${referenceStation.name} (${attributes.ReferenceId})</a></div>`;
+    } 
+    return `<div><b>Station Id:</b> <a href="${url}">{StationId}</a></div>
+      ${referenceSegment}
+      <div><b>Station Type:</b> ${stationType}</div>`;
+  }
+
+  // get the next 2 (or maximumPredictions) tide predictions for a station and format the popup content
   getStationPopupContent(feature: any): Promise<string> {
     let attributes = feature.graphic.attributes;
-    let url: string = `https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?date=today&station=${attributes.StationId}&product=predictions&datum=MLLW&time_zone=lst_ldt&interval=hilo&units=english&application=DataAPI_Sample&format=json`;
+    let url: string = this.getPredictionsUrl(attributes.StationId);
     return esriRequest(url)
       .then((response: any) => {
         let predictions: any[] = response.data.predictions;
-        let predictionsContent: string = `<div><b>Today's High and Low Tides:</b></div>
-          <table style="border-spacing: 6px;"><tr style="color: #123c74;"><th style="text-align:left;">Type</th><th style="text-align:left;">Time</th><th>Water Level (ft)</th></tr>`;
-        predictions.forEach((prediction: any) => {
-          predictionsContent += `<tr><td>${prediction.type == 'L' ? 'Low' : 'High'}</td>`;
-          predictionsContent += `<td>${prediction.t}</td><td style="text-align:right;">${prediction.v}</td>`;
-        });
-        predictionsContent += "</table>";
-        const stationBaseUrl: string = "https://tidesandcurrents.noaa.gov/stationhome.html?id=";
-        let stationType: string = attributes.StationType == "S" ? "Subordinate" : "Reference";
-        let url: string = `${stationBaseUrl}${attributes.StationId}`;
-        let referenceUrl: string = `${stationBaseUrl}${attributes.ReferenceId}`;
-        let referenceSegment: string = attributes.ReferenceId ? `<div><b>Reference Station Id:</b> <a href="${referenceUrl}">{ReferenceId}</a></div>` : "";
-        const content: string = `<div><b>Station Id:</b> <a href="${url}">{StationId}</a></div>
-        ${referenceSegment}
-        <div><b>Station Type:</b> ${stationType}</div>`;
-        return predictionsContent + content;
+        predictions = predictions.slice(0, this.maximumPredictions);
+
+        return this.getPredictionsContent(predictions) + this.getStationInfoContent(attributes);
       });
   }
 
