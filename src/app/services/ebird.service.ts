@@ -53,7 +53,7 @@ export class EbirdService {
   }
   getFindHotspotsAction(): any {
     return {
-      title: "Find Hotspots",
+      title: "Hotspots",
       id: this.findHotspotsActionId,
       image: "/assets/images/aab-16.png"
     };

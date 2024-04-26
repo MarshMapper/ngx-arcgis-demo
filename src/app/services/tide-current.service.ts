@@ -40,7 +40,7 @@ export class TideCurrentService {
 
   getFindStationsAction(): any {
     return {
-      title: "Find Tide Stations",
+      title: "Tide Stations",
       id:  this.tideActionId,
       image: "/assets/images/noaa-16x16.png"
     };
