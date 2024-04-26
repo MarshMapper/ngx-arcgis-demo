@@ -3,6 +3,7 @@ import { on } from '@arcgis/core/core/reactiveUtils';
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 import { EbirdService } from './ebird.service';
 import { TideCurrentService } from './tide-current.service';
+import { WeatherService } from './weather.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,9 @@ export class ProtectedAreasService {
   IucnCategoryMap = new Map<string, string>();
 
   constructor(private ebirdService: EbirdService,
-      private tideCurrentService: TideCurrentService) {
+    private tideCurrentService: TideCurrentService,
+    private weatherService: WeatherService
+  ) {
     this.initializeCategoryMap();
   }
   initializeCategoryMap(): void {
@@ -33,7 +36,8 @@ export class ProtectedAreasService {
       title: "{name}",
       content: this.getContent.bind(this),
       actions: [this.ebirdService.getFindHotspotsAction(), 
-        this.tideCurrentService.getFindStationsAction()]
+        this.tideCurrentService.getFindStationsAction(),
+        this.weatherService.getWeatherAction()]
     };
     const protectedAreasRenderer = {
       type: "simple",
@@ -69,10 +73,26 @@ export class ProtectedAreasService {
   initializePopup(view: any) {
     this.ebirdService.initializePopup(view);
     on(() => view.popup, "trigger-action", (event) => {
-      if (event.action.id === this.ebirdService.getFindHotspotsActionId()) {
-        this.ebirdService.updateHotspotsLayer(view);
-      } else if (event.action.id === this.tideCurrentService.getFindStationsActionId()) {
-        this.tideCurrentService.updateTideStationsLayer(view);
+      switch (event.action.id) {
+        case this.ebirdService.getFindHotspotsActionId():
+          this.ebirdService.updateHotspotsLayer(view);
+          break;
+        case this.tideCurrentService.getFindStationsActionId():
+          this.tideCurrentService.updateTideStationsLayer(view);
+          break;
+        case this.weatherService.getWeatherActionId():
+          this.weatherService.getWeatherPredictions(view.popup).then((predictions) => {
+            let periods = predictions.periods.slice(0, 2);
+            let content: string = "<div>";
+
+            periods.forEach((period: any) => {
+              content += `<div><b>${period.name}:</b> ${period.detailedForecast}</div>`;
+            });
+
+            content += "</div>";
+            view.popup.content = content;
+          });
+          break;
       }
     });
   }
