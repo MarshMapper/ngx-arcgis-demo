@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ArcMapComponent } from './arc-map.component';
+import { HttpClientModule } from '@angular/common/http';
 
 describe('ArcMapComponent', () => {
   let component: ArcMapComponent;
@@ -8,7 +9,7 @@ describe('ArcMapComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ArcMapComponent]
+      imports: [ArcMapComponent, HttpClientModule]
     })
     .compileComponents();
     
