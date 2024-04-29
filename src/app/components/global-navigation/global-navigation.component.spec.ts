@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { GlobalNavigationComponent } from './global-navigation.component';
+import { provideRouter } from '@angular/router';
 
 describe('GlobalNavigationComponent', () => {
   let component: GlobalNavigationComponent;
@@ -8,7 +9,10 @@ describe('GlobalNavigationComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [GlobalNavigationComponent]
+      imports: [GlobalNavigationComponent],
+      providers: [
+        provideRouter([{path:'', component: GlobalNavigationComponent}])
+      ]
     })
     .compileComponents();
     
