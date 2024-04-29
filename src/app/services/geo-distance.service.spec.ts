@@ -72,10 +72,10 @@ describe('GeoDistanceService', () => {
   });
 
   testData.forEach(data => {
-    it(`should calculate distance between points, using( lat1 ${data.lat1}, lon1 ${data.lon1},  lat2 ${data.lat2}, lon2 ${data.lon2}`,  () => {
+    it(`should calculate distance between points, using( lat1 ${data.lat1}, lon1 ${data.lon1},  lat2 ${data.lat2}, lon2 ${data.lon2} )`,  () => {
       expect(service.cosineDistanceBetweenPoints(data.lat1, data.lon1, data.lat2, data.lon2)).toBeCloseTo(data.distance, 2);
     });
-    it(`should determine if 2 points are within 10 km, using( lat1 ${data.lat1}, lon1 ${data.lon1},  lat2 ${data.lat2}, lon2 ${data.lon2}`,  () => {
+    it(`should determine if 2 points are within 10 km, using( lat1 ${data.lat1}, lon1 ${data.lon1},  lat2 ${data.lat2}, lon2 ${data.lon2} )`,  () => {
       if (data.distance <= 10) {
         expect(service.isPointWithinRadius(data.lat1, data.lon1, data.lat2, data.lon2)).toBeTrue();
       } else {  
