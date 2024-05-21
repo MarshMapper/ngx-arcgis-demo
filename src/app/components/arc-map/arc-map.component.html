@@ -1,15 +1,22 @@
-<arcgis-map class="arcgis-defaults" itemId="85015c1ad9a344439f695f8c0442619f"
-    (arcgisViewReadyChange)="arcgisViewReadyChange($event)">
-    <arcgis-expand position="top-right">
-        <arcgis-search></arcgis-search>
-    </arcgis-expand>
-    <arcgis-expand position="bottom-right">
-        <arcgis-layer-list />
-    </arcgis-expand>
-    <arcgis-expand position="bottom-left">
-        <arcgis-legend></arcgis-legend>
-    </arcgis-expand>
-    <arcgis-expand position="bottom-right">
-        <arcgis-basemap-gallery></arcgis-basemap-gallery>
-    </arcgis-expand>
-</arcgis-map>
+<div class="map-container" [ngClass]="getInfoPanelClass()">
+    <arcgis-map class="arcgis-defaults" itemId="85015c1ad9a344439f695f8c0442619f"
+        (arcgisViewReadyChange)="arcgisViewReadyChange($event)">
+        <arcgis-expand position="top-right">
+            <arcgis-search></arcgis-search>
+        </arcgis-expand>
+        <arcgis-expand position="bottom-right">
+            <arcgis-layer-list />
+        </arcgis-expand>
+        <arcgis-expand position="bottom-left">
+            <arcgis-legend></arcgis-legend>
+        </arcgis-expand>
+        <arcgis-expand position="bottom-right">
+            <arcgis-basemap-gallery></arcgis-basemap-gallery>
+        </arcgis-expand>
+    </arcgis-map>
+    @if (showInfoPanel) {
+    <div class="info-panel">
+        Feature informaton panel
+    </div>
+    }
+</div>

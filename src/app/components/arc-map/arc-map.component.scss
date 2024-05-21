@@ -7,3 +7,17 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
+.map-container {
+    height: 100%;
+    width: 100%;
+    display: grid;
+}
+.map-container-vertical {
+    grid-template-rows: 1fr auto;
+}
+.map-container-horizontal {
+    grid-template-columns: 1fr auto;
+}
+.map-container-map-only {
+    grid-template-columns: 1fr;
+}

@@ -1,12 +1,10 @@
-import { Component, inject } from '@angular/core';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { Component } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
-import { map, shareReplay } from 'rxjs/operators';
 import { ArcMapComponent } from "../arc-map/arc-map.component";
 import { RouterModule } from '@angular/router';
 
@@ -27,12 +25,5 @@ import { RouterModule } from '@angular/router';
     ]
 })
 export class GlobalNavigationComponent {
-  private breakpointObserver = inject(BreakpointObserver);
 
-  hideNavBar$ = this.breakpointObserver.observe([Breakpoints.Medium, 
-    Breakpoints.Small, Breakpoints.XSmall])
-    .pipe(
-      map(result => result.matches),
-      shareReplay()
-    );
 }
