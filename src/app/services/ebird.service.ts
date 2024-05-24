@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Observable, Subject, Subscription } from 'rxjs';
-import { environment } from '../../environments/environment';
 import { SimpleMarkerSymbol } from '@arcgis/core/symbols';
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 import { on } from '@arcgis/core/core/reactiveUtils';
@@ -26,7 +25,7 @@ export class EbirdService {
   constructor(private httpClient: HttpClient,
     private snackBar: MatSnackBar
   ) {
-    this.ebirdApiKey = environment.eBirdApiKey;
+    this.ebirdApiKey = import.meta.env.NG_APP_EBIRD_API_KEY;
   }
   // Get eBird hotspots near a given latitude and longitude
   // Distance is in kilometers
