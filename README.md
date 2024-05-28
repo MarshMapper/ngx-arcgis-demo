@@ -35,6 +35,6 @@ Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.
 
 # Roadmap
 - Show more detailed information about the bird sightings in popup or separate panel.
-- Show lists / tables of features shown on map in separate, resonsive panel.
+- Show lists / tables of features shown on map in separate, responsive panel.
 - Possibly make services more reusable and move into library.
 - Add stronger typing for external components and services.

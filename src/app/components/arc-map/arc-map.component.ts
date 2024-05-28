@@ -8,6 +8,13 @@ import { map, shareReplay } from 'rxjs/operators';
 import { CalciteComponentsModule } from '@esri/calcite-components-angular';
 import { ProtectedAreasService } from '../../services/protected-areas.service';
 import { UnprotectedAreasService } from '../../services/unprotected-areas.service';
+import { ProgressService } from '../../services/progress.service';
+import Map from "@arcgis/core/Map";
+import ImageryTileLayer from '@arcgis/core/layers/ImageryTileLayer';
+import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
+import View from "@arcgis/core/views/View";
+import LayerView from "@arcgis/core/views/layers/LayerView";
+import { whenOnce } from '@arcgis/core/core/reactiveUtils';
 
 @Component({
   selector: 'app-arc-map',
@@ -30,17 +37,43 @@ export class ArcMapComponent implements OnInit {
       shareReplay()
     );
   constructor(private protectedAreasService: ProtectedAreasService,
-    private unprotectedAreasService: UnprotectedAreasService
+    private unprotectedAreasService: UnprotectedAreasService,
+    private progressService: ProgressService
   ) { }
 
   arcgisViewReadyChange(event: any) {
     this.isLoading = false;
-    const mapElement = event.target;
+    const map: Map = event.target.map;
+    const view: View = event.target.view;
+    const unprotectedAreasLayer: ImageryTileLayer = this.unprotectedAreasService.createImageryTileLayer();
+    const protectedAreasLayer: FeatureLayer = this.protectedAreasService.createFeatureLayer();
 
-    mapElement.map.add(this.unprotectedAreasService.createImageryTileLayer());
-    this.unprotectedAreasService.initializePopup(mapElement.view);
-    mapElement.map.add(this.protectedAreasService.createFeatureLayer());
-    this.protectedAreasService.initializePopup(mapElement.view);
+    map.add(unprotectedAreasLayer);
+    this.unprotectedAreasService.initializePopup(view);
+    map.add(protectedAreasLayer);
+    this.protectedAreasService.initializePopup(view);
+
+    this.waitForLayersToLoad(view, unprotectedAreasLayer, protectedAreasLayer);
+  }
+  waitForLayersToLoad(view: View, unprotectedAreasLayer: ImageryTileLayer, protectedAreasLayer: FeatureLayer): void {
+    let unprotectedAreasView: LayerView;
+    let protectedAreasView: LayerView;
+
+    Promise.all([
+      view.whenLayerView(unprotectedAreasLayer),
+      view.whenLayerView(protectedAreasLayer)
+    ]).then(([unprotectedView, protectedView]) => {
+        unprotectedAreasView = unprotectedView;
+        protectedAreasView = protectedView;
+        return Promise.all(
+          [
+            whenOnce(() => !unprotectedAreasView.updating),
+            whenOnce(() => !protectedAreasView.updating)
+          ]
+        );
+    }).then(() => {
+      this.progressService.setWorkInProgress(false);
+    });
   }
   getInfoPanelClass(): string {
     if (this.showInfoPanel) {
@@ -55,5 +88,6 @@ export class ArcMapComponent implements OnInit {
     this.isSmallPortrait$.subscribe((isSmallPortrait) => {
       this.isSmallPortrait = isSmallPortrait;
     });
+    this.progressService.setWorkInProgress(true);
   }
 }
