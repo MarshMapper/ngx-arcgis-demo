@@ -12,6 +12,9 @@
             <a routerLink="/help" type="button" aria-label="Help button" mat-icon-button>
                 <mat-icon aria-hidden="false" aria-label="help icon">help</mat-icon></a>
         </span>
+        @if(showProgressBar) {
+            <mat-progress-bar #loadingIndicator class="progress-bar" mode="indeterminate" color="primary"></mat-progress-bar>
+        }
     </mat-toolbar>
     <div>
         <router-outlet></router-outlet>
