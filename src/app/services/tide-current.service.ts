@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import esriRequest from '@arcgis/core/request';
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 import { SimpleMarkerSymbol } from '@arcgis/core/symbols';
+import { ProgressService } from './progress.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +19,8 @@ export class TideCurrentService {
 
   constructor(private httpClient: HttpClient,
     private geoDistanceService: GeoDistanceService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private progressService: ProgressService
   ) { 
     // get the tide stations from the NOAA API
     this.getTideStations();
@@ -116,12 +118,15 @@ export class TideCurrentService {
     let features: any[] = [];
     let layer: FeatureLayer | undefined = undefined;
 
+    this.progressService.setWorkInProgress(true);
+
     if (!this.allStations || this.allStations.length == 0) {
       this.snackBar.open("Tide stations are not available. Please try again later.", "Close", {
         duration: 5000
       });
       return layer;
     }
+    // filter the stations to those within the specified radius and create point geometries for them
     this.stationsWithinRadius(latitude, longitude).forEach((station: any) => {
       features.push({
         geometry: {
@@ -137,6 +142,7 @@ export class TideCurrentService {
         }
       });
     });
+    this.progressService.setWorkInProgress(false);
     if (features.length == 0) {
       this.snackBar.open("No tide stations found within the specified radius.", "Close", {
         duration: 5000

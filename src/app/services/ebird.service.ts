@@ -5,6 +5,7 @@ import { Observable, Subject, Subscription } from 'rxjs';
 import { SimpleMarkerSymbol } from '@arcgis/core/symbols';
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 import { on } from '@arcgis/core/core/reactiveUtils';
+import { ProgressService } from './progress.service';
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +24,8 @@ export class EbirdService {
   hotspotsSubscription: Subscription | undefined = undefined;
 
   constructor(private httpClient: HttpClient,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private progressService: ProgressService
   ) {
     this.ebirdApiKey = import.meta.env.NG_APP_EBIRD_API_KEY;
   }
@@ -64,6 +66,7 @@ export class EbirdService {
   getNearbyHotspotsLayer(latitude: number, longitude: number, distance: number = 10): Observable<FeatureLayer | undefined> {
     let features: any[] = [];
     let layer: FeatureLayer | undefined = undefined;
+    this.progressService.setWorkInProgress(true);
 
     this.getNearbyHotspots(latitude, longitude, distance).subscribe((hotspots) => {
       hotspots.forEach((hotspot: any) => {
@@ -81,6 +84,7 @@ export class EbirdService {
           }
         });
       });
+      this.progressService.setWorkInProgress(false);
       if (features.length == 0) {
         this.snackBar.open("No eBird hotspots found within the specified radius.", "Close", {
           duration: 5000
