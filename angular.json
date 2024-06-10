@@ -26,6 +26,7 @@
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
+              "src/staticwebapp.config.json",
               "src/favicon.ico",
               "src/android-chrome-192x192.png",
               "src/android-chrome-256x256.png",
@@ -108,5 +109,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }
