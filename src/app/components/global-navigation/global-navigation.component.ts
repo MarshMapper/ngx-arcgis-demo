@@ -9,6 +9,7 @@ import { MatProgressBar, MatProgressBarModule } from '@angular/material/progress
 import { ArcMapComponent } from "../arc-map/arc-map.component";
 import { RouterModule } from '@angular/router';
 import { ProgressService } from '../../services/progress.service';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
     selector: 'app-global-navigation',
@@ -29,10 +30,13 @@ import { ProgressService } from '../../services/progress.service';
 })
 export class GlobalNavigationComponent {
     @ViewChild('loadingIndicator') loadingIndicator!: MatProgressBar;
-    showProgressBar: boolean = false;
+    showProgressBar$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+
     constructor(private progressService: ProgressService) { 
-        this.progressService.getWorkInProgress().subscribe((workInProgress: boolean) => {
-            this.showProgressBar = workInProgress;
-        });
     }
+    ngAfterViewInit() {
+        this.progressService.getWorkInProgress().subscribe((workInProgress: boolean) => {
+            setTimeout(() => this.showProgressBar$.next(workInProgress));
+        });
+    }   
 }
