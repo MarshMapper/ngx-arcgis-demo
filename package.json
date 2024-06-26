@@ -24,6 +24,7 @@
     "@arcgis/map-components-angular": "4.29.10",
     "@esri/calcite-components": "^2.7.1",
     "@esri/calcite-components-angular": "2.7.1",
+    "braces": "3.0.3",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "ws": "^8.17.1",
