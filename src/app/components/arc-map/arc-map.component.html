@@ -1,6 +1,7 @@
 <div class="map-container" [ngClass]="getInfoPanelClass()">
     <arcgis-map class="arcgis-defaults" itemId="85015c1ad9a344439f695f8c0442619f"
         (arcgisViewReadyChange)="arcgisViewReadyChange($event)">
+        <arcgis-zoom position="top-left"></arcgis-zoom>
         <arcgis-expand position="top-right">
             <arcgis-search></arcgis-search>
         </arcgis-expand>
