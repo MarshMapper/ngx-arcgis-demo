@@ -1,5 +1,5 @@
 # ngx-arcgis-demo
-Demo project integrating [ArcGIS Maps SDK for JavaScript (4.29)](https://developers.arcgis.com/javascript/latest/) 
+Demo project integrating [ArcGIS Maps SDK for JavaScript (4.30)](https://developers.arcgis.com/javascript/latest/) 
 and [Calcite Web Comoponents](https://developers.arcgis.com/javascript/latest/calcite-design-system/) with Angular 
 and Angular Material 17.x for navigation and layout.  An inital goal was to integrate real-time data from external 
 APIs with the high-level components provided in the SDK. These include the 
