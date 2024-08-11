@@ -15,6 +15,8 @@ import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 import View from "@arcgis/core/views/View";
 import LayerView from "@arcgis/core/views/layers/LayerView";
 import { whenOnce } from '@arcgis/core/core/reactiveUtils';
+import { NjHistoricalMapsService, NjHistoricalMapType } from '../../services/nj-historical-maps.service';
+import Layer from '@arcgis/core/layers/Layer';
 
 @Component({
   selector: 'app-arc-map',
@@ -38,6 +40,7 @@ export class ArcMapComponent implements OnInit {
     );
   constructor(private protectedAreasService: ProtectedAreasService,
     private unprotectedAreasService: UnprotectedAreasService,
+    private njHistoricalMapsService: NjHistoricalMapsService,
     private progressService: ProgressService
   ) { }
 
@@ -52,6 +55,15 @@ export class ArcMapComponent implements OnInit {
     this.unprotectedAreasService.initializePopup(view);
     map.add(protectedAreasLayer);
     this.protectedAreasService.initializePopup(view);
+
+    // add the NJ Historical Maps, but they won't be visible by default
+    const mapTypes = Object.values(NjHistoricalMapType);
+    mapTypes.forEach((mapType) => {
+      const historicalLayer: Layer | undefined = this.njHistoricalMapsService.createLayer(<NjHistoricalMapType>mapType);
+      if (historicalLayer) {
+        map.add(historicalLayer);
+      }
+    });
 
     this.waitForLayersToLoad(view, unprotectedAreasLayer, protectedAreasLayer);
   }
