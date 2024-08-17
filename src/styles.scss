@@ -38,3 +38,17 @@ $ngx-arcgis-demo-theme: mat.define-light-theme((
 
 html, body { height: 100%; }
 body { margin: 0; font-family: "Noto Sans", "Helvetica Neue", sans-serif; }
+.mat-mdc-paginator-container {
+  flex-wrap: nowrap !important;
+  min-height: 30px !important;
+}
+.mat-mdc-paginator {
+  line-height: 16px !important;
+  font-size: 12px !important;
+  --mat-form-field-container-height: 26px !important;
+  --mat-form-field-container-vertical-padding: 5px !important;
+}
+.mat-mdc-paginator-range-label {
+  text-wrap: nowrap !important;
+  margin: 0 8px 0 8px !important;
+}

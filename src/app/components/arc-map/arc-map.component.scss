@@ -13,10 +13,10 @@
     display: grid;
 }
 .map-container-vertical {
-    grid-template-rows: 60% 40%;
+    grid-template-rows: 1fr 40vh;
 }
 .map-container-horizontal {
-    grid-template-columns: 1fr 30%;
+    grid-template-columns: 1fr 34%;
 }
 .map-container-map-only {
     grid-template-columns: 1fr;
@@ -25,17 +25,4 @@
     height: 100%;
     overflow: auto;
 }
-.tab-content {
-    height: 600px;
-}
-.feature-table-container-horizontal {
-    height: calc(100vh - 140px);
-}
-.feature-table-container-vertical {
-    height: calc(40vh - 80px);
-}
-.mat-mdc-row {
-    height: 24px;
-    font-size: 14px;
-    line-height: 18px;
-}
+

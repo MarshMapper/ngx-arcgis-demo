@@ -1,0 +1,22 @@
+// 64px header, 48px footer, 48px paginator
+.feature-table-container-horizontal {
+    height: calc(100vh - 112px);
+    display: grid;
+    grid-template-rows: calc(100vh - 160px) 48px;
+}
+.feature-table-container-vertical {
+    height: calc(40vh - 48px);
+    display: grid;
+    grid-template-rows: calc(40vh - 96px) 48px;
+}
+.table-container {
+    overflow-y: auto;
+}
+.mat-mdc-row {
+    height: 24px;
+    font-size: 14px;
+    line-height: 18px;
+}
+.paginator-container {
+    overflow: hidden;
+}
