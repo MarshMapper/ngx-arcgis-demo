@@ -4,6 +4,10 @@ import { defineCustomElements as defineCalciteElements } from "@esri/calcite-com
 import { CommonModule } from '@angular/common';
 import { ComponentLibraryModule } from '@arcgis/map-components-angular';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatSortModule } from '@angular/material/sort';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { map, shareReplay } from 'rxjs/operators';
 import { CalciteComponentsModule } from '@esri/calcite-components-angular';
 import { ProtectedAreasService } from '../../services/protected-areas.service';
@@ -14,26 +18,31 @@ import ImageryTileLayer from '@arcgis/core/layers/ImageryTileLayer';
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 import View from "@arcgis/core/views/View";
 import LayerView from "@arcgis/core/views/layers/LayerView";
-import { whenOnce } from '@arcgis/core/core/reactiveUtils';
+import { when, whenOnce } from '@arcgis/core/core/reactiveUtils';
 import { NjHistoricalMapsService, NjHistoricalMapType } from '../../services/nj-historical-maps.service';
 import Layer from '@arcgis/core/layers/Layer';
 
 @Component({
   selector: 'app-arc-map',
   standalone: true,
-  imports: [ CommonModule, ComponentLibraryModule, CalciteComponentsModule ],
+  imports: [CommonModule, ComponentLibraryModule, CalciteComponentsModule, MatTabsModule, MatTableModule, 
+    MatPaginatorModule, MatSortModule],
   templateUrl: './arc-map.component.html',
   styleUrl: './arc-map.component.scss'
 })
 export class ArcMapComponent implements OnInit {
   public isLoading: boolean = true;
-  public showInfoPanel: boolean = false;
+  public showInfoPanel: boolean = true;
   public isSmallPortrait: boolean = false;
   private breakpointObserver = inject(BreakpointObserver);
+  // private unprotectedAreasLayer: ImageryTileLayer | undefined; 
+  // private protectedAreasLayer: FeatureLayer | undefined; 
+  displayedColumns: string[] = ['name']; // Only 'name' column is displayed
+  dataSource = new MatTableDataSource();
 
-  isSmallPortrait$ = this.breakpointObserver.observe([ 
-    Breakpoints.TabletPortrait, 
-    Breakpoints.HandsetPortrait ])
+  isSmallPortrait$ = this.breakpointObserver.observe([
+    Breakpoints.TabletPortrait,
+    Breakpoints.HandsetPortrait])
     .pipe(
       map(result => result.matches),
       shareReplay()
@@ -56,6 +65,7 @@ export class ArcMapComponent implements OnInit {
     map.add(protectedAreasLayer);
     this.protectedAreasService.initializePopup(view);
 
+
     // add the NJ Historical Maps, but they won't be visible by default
     const mapTypes = Object.values(NjHistoricalMapType);
     mapTypes.forEach((mapType) => {
@@ -64,10 +74,9 @@ export class ArcMapComponent implements OnInit {
         map.add(historicalLayer);
       }
     });
-
-    this.waitForLayersToLoad(view, unprotectedAreasLayer, protectedAreasLayer);
+    this.waitForLayersToLoad(view, map, unprotectedAreasLayer, protectedAreasLayer);
   }
-  waitForLayersToLoad(view: View, unprotectedAreasLayer: ImageryTileLayer, protectedAreasLayer: FeatureLayer): void {
+  waitForLayersToLoad(view: View, map: Map, unprotectedAreasLayer: ImageryTileLayer, protectedAreasLayer: FeatureLayer): void {
     let unprotectedAreasView: LayerView;
     let protectedAreasView: LayerView;
 
@@ -75,15 +84,30 @@ export class ArcMapComponent implements OnInit {
       view.whenLayerView(unprotectedAreasLayer),
       view.whenLayerView(protectedAreasLayer)
     ]).then(([unprotectedView, protectedView]) => {
-        unprotectedAreasView = unprotectedView;
-        protectedAreasView = protectedView;
-        return Promise.all(
-          [
-            whenOnce(() => !unprotectedAreasView.updating),
-            whenOnce(() => !protectedAreasView.updating)
-          ]
-        );
-    }).then(() => {
+      unprotectedAreasView = unprotectedView;
+      protectedAreasView = protectedView;
+      when(
+        () => !protectedView.updating,
+        (val) => {
+          // get all the features in view from the layerView
+          protectedView.queryFeatures().then((results) => {
+            let features: any[] = [];
+            // add to array with just the name for display and the id for selection / tracking
+            results.features.forEach((feature) => {
+              features.push({ id: feature.attributes.id, name: feature.attributes.name });
+            });
+            features.sort((a, b) => a.name.localeCompare(b.name));
+            this.dataSource.data = features;
+          })
+        });
+      return Promise.all(
+        [
+          whenOnce(() => !unprotectedAreasView.updating),
+          whenOnce(() => !protectedAreasView.updating)
+        ]
+      );
+    })
+    .then(() => {
       this.progressService.setWorkInProgress(false);
     });
   }
@@ -93,7 +117,9 @@ export class ArcMapComponent implements OnInit {
     }
     return 'map-container-map-only';
   }
-
+  getFeatureContainerClass(): string {
+    return this.isSmallPortrait ? 'feature-table-container-vertical' : 'feature-table-container-horizontal';
+  }
   ngOnInit(): void {
     defineCustomElements(window, { resourcesUrl: "https://js.arcgis.com/map-components/4.29/assets" });
     defineCalciteElements(window, { resourcesUrl: "https://js.arcgis.com/calcite-components/2.5.1/assets" });
