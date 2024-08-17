@@ -1,0 +1,18 @@
+<div [ngClass]="getFeatureContainerClass()" id="featureTableContainer">
+    <div class="table-container">
+        <table mat-table [dataSource]="dataSource">
+            <ng-container matColumnDef="id">
+                <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+            </ng-container>
+            <ng-container matColumnDef="name">
+                <td class="table-cell" mat-cell *matCellDef="let element"> {{element.name}} </td>
+            </ng-container>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+    </div>
+    <div class="paginator-container">
+        <mat-paginator #featurePaginator class="feature-paginator" showFirstLastButtons
+            [pageSizeOptions]="[5, 10, 20, 50]" pageSize="50" aria-label="Select page">
+        </mat-paginator>
+    </div>
+</div>
