@@ -20,12 +20,13 @@ import { whenOnce } from '@arcgis/core/core/reactiveUtils';
 import { NjHistoricalMapsService, NjHistoricalMapType } from '../../services/nj-historical-maps.service';
 import Layer from '@arcgis/core/layers/Layer';
 import { FeatureListComponent } from "../feature-list/feature-list.component";
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { LayerControlPanelComponent } from "../layer-control-panel/layer-control-panel.component";
 
 @Component({
   selector: 'app-arc-map',
   standalone: true,
-  imports: [CommonModule, ComponentLibraryModule, CalciteComponentsModule, MatTabsModule, FeatureListComponent],
+  imports: [CommonModule, ComponentLibraryModule, CalciteComponentsModule, MatTabsModule, FeatureListComponent, LayerControlPanelComponent],
 
   templateUrl: './arc-map.component.html',
   styleUrl: './arc-map.component.scss'
@@ -36,6 +37,7 @@ export class ArcMapComponent implements OnInit {
   public isSmallPortrait: boolean = false;
   private breakpointObserver = inject(BreakpointObserver);
   public protectedLayerViewSubject: Subject<__esri.FeatureLayerView> = new Subject<__esri.FeatureLayerView>();
+  public overlayLayersSubject: BehaviorSubject<Layer[]> = new BehaviorSubject<Layer[]>([]);
 
   isSmallPortrait$ = this.breakpointObserver.observe([
     Breakpoints.TabletPortrait,
@@ -56,6 +58,7 @@ export class ArcMapComponent implements OnInit {
     const view: View = event.target.view;
     const unprotectedAreasLayer: ImageryTileLayer = this.unprotectedAreasService.createImageryTileLayer();
     const protectedAreasLayer: FeatureLayer = this.protectedAreasService.createFeatureLayer();
+    let overlayLayers: Layer[] = [protectedAreasLayer, unprotectedAreasLayer];
 
     map.add(unprotectedAreasLayer);
     this.unprotectedAreasService.initializePopup(view);
@@ -68,8 +71,10 @@ export class ArcMapComponent implements OnInit {
       const historicalLayer: Layer | undefined = this.njHistoricalMapsService.createLayer(<NjHistoricalMapType>mapType);
       if (historicalLayer) {
         map.add(historicalLayer);
+        overlayLayers.push(historicalLayer);
       }
     });
+    this.overlayLayersSubject.next(overlayLayers);
     this.waitForLayersToLoad(view, map, unprotectedAreasLayer, protectedAreasLayer);
   }
   waitForLayersToLoad(view: View, map: Map, unprotectedAreasLayer: ImageryTileLayer, protectedAreasLayer: FeatureLayer): void {
