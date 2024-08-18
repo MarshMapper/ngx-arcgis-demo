@@ -1,0 +1,16 @@
+<div [ngClass]="getLayerContainerClass()">
+    @for(layer of overlayLayers$ | async; track layer.id) {
+        <div class="layer-container" >
+            <span class="layer-title">{{layer.title}}</span>
+            <div class="slider-container">
+                <mat-slide-toggle [checked]="layer.visible" (change)="toggleLayerVisibility(layer)">
+                    {{layer.visible ? 'Visible' : 'Not Visible'}}
+                </mat-slide-toggle>
+                <mat-slider min="0" max="1" step="0.05" [displayWith]="getSliderLabel">
+                    <input matSliderThumb #opacitySlider value="{{layer.opacity}}" (valueChange)="opacityChanged(layer, $event)" />
+                </mat-slider>
+                <span>Opacity: {{opacitySlider.value}}</span>
+            </div>
+        </div>
+        }
+</div>

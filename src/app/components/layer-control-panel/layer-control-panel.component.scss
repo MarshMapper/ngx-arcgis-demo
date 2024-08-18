@@ -1,0 +1,25 @@
+.layer-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+.layer-container {
+    margin: 10px;
+    padding: 10px;
+    font-size: 13px;
+    box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.2);
+}
+.slider-container {
+    margin: 0px;
+    padding: 6px;
+    display: grid;
+    grid-template-columns: 30% 45% 25%;
+    align-items: center;
+}
+.layer-container-horizontal {
+    height: calc(100vh - 112px);
+    overflow-y: auto;
+}
+.layer-container-vertical {
+    height: calc(40vh - 48px);
+    overflow-y: auto;
+}

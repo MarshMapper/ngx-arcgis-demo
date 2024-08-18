@@ -5,12 +5,12 @@ import WMSLayer from '@arcgis/core/layers/WMSLayer';
 
 export enum NjHistoricalMapType {
   HistoricalMaps1881to1924,
-  LandCover2007,
-  LandCover2020,
+  AerialImagery1930,
+  WetlandsImagery1970,
   UsgsTopo100k,
   WetlandsFromLandCover2002,
-  WetlandsImagery1970,
-  AerialImagery1930,
+  LandCover2007,
+  LandCover2020,
 }
 export enum LayerType {
   WMSLayer,
@@ -42,6 +42,24 @@ export class NjHistoricalMapsService {
       layerType: LayerType.WMSLayer
     },
     {
+      type: NjHistoricalMapType.WetlandsImagery1970,
+      title: "Wetlands Imagery (1970)",
+      url: "https://img.nj.gov/imagerywms/Wetlands1970",
+      layerType: LayerType.WMSLayer,
+    },
+    {
+      type: NjHistoricalMapType.AerialImagery1930,
+      title: "Aerial Imagery (1930)",
+      url: "https://img.nj.gov/imagerywms/BlackWhite1930",
+      layerType: LayerType.WMSLayer
+    },
+    {
+      type: NjHistoricalMapType.UsgsTopo100k,
+      title: "USGS Topo 100k",
+      url: "https://img.nj.gov/imagerywms/Topo100K",
+      layerType: LayerType.WMSLayer
+    },
+    {
       type: NjHistoricalMapType.LandCover2007,
       title: "NJ Land Cover (2007)",
       url: "https://mapsdep.nj.gov/arcgis/rest/services/Features/Land_lu/MapServer/4",
@@ -54,29 +72,11 @@ export class NjHistoricalMapsService {
       layerType: LayerType.FeatureLayer,
     },
     {
-      type: NjHistoricalMapType.UsgsTopo100k,
-      title: "USGS Topo 100k",
-      url: "https://img.nj.gov/imagerywms/Topo100K",
-      layerType: LayerType.WMSLayer
-    },
-    {
       type: NjHistoricalMapType.WetlandsFromLandCover2002,
       title: "Wetlands from Land Cover (2002)",
       url: "https://mapsdep.nj.gov/arcgis/rest/services/Features/Land_lu/MapServer/9",
       layerType: LayerType.FeatureLayer,
     },
-    {
-      type: NjHistoricalMapType.WetlandsImagery1970,
-      title: "Wetlands Imagery (1970)",
-      url: "https://img.nj.gov/imagerywms/Wetlands1970",
-      layerType: LayerType.WMSLayer,
-    },
-    {
-      type: NjHistoricalMapType.AerialImagery1930,
-      title: "Aerial Imagery (1930)",
-      url: "https://img.nj.gov/imagerywms/BlackWhite1930",
-      layerType: LayerType.WMSLayer
-    }
   ];
   constructor() { }
 
