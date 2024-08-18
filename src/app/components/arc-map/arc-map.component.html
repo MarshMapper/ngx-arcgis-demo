@@ -20,7 +20,7 @@
         <mat-tab-group preserveContent>
             <mat-tab class="tab-content" label="Places">
                 <ng-template matTabContent>
-                    <app-feature-list [featureLayerView]="protectedLayerViewSubject"></app-feature-list>
+                    <app-feature-list [featureLayerView$]="protectedLayerViewSubject"></app-feature-list>
                 </ng-template>
             </mat-tab>
             <mat-tab class="tab-content" label="Layers">  </mat-tab>

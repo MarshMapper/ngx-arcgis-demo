@@ -7,7 +7,8 @@
             <ng-container matColumnDef="name">
                 <td class="table-cell" mat-cell *matCellDef="let element"> {{element.name}} </td>
             </ng-container>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <tr class="feature-row" mat-row *matRowDef="let row; columns: displayedColumns;" (click)="selectRow(row)" 
+                [style.background]="selectedRow === row ? '#c1d3e3' : ''"></tr>
         </table>
     </div>
     <div class="paginator-container">
