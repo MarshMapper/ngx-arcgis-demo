@@ -5,7 +5,7 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatPaginator, MatPaginatorIntl, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
-import { when } from '@arcgis/core/core/reactiveUtils';
+import { when, whenOnce } from '@arcgis/core/core/reactiveUtils';
 
 function getRangeLabel(page: number, pageSize: number, length: number): string {
   if (length === 0 || pageSize === 0) {
@@ -16,6 +16,7 @@ function getRangeLabel(page: number, pageSize: number, length: number): string {
   const endIndex = startIndex < length ? Math.min(startIndex + pageSize, length) : startIndex + pageSize;
   return `${startIndex + 1} – ${endIndex}`;
 }
+// customize the Material paginator 
 function CustomPaginator() {
   const customPaginatorIntl = new MatPaginatorIntl();
   customPaginatorIntl.itemsPerPageLabel = 'Show:';
@@ -57,44 +58,63 @@ export class FeatureListComponent implements OnInit, AfterViewInit {
     });
     // parent component will pass in the featureLayerView observable and emit a new value
     // each time the view changes
-    this.featureLayerView$.subscribe((layerView: __esri.FeatureLayerView) => {
+    this.featureLayerView$?.subscribe((layerView: __esri.FeatureLayerView) => {
+      if (this.featureLayerView) {
+        return;
+      }
       this.featureLayerView = layerView;
-      when(
-        () => !layerView.updating,
-        (val) => {
-          // get all the features in view from the layerView
-          layerView.queryFeatures().then((results) => {
-            let features: any[] = [];
-            // add to array with just the name for display and the id for selection / tracking
-            results.features.forEach((feature) => {
-              features.push({ id: feature.attributes.OBJECTID, name: feature.attributes.name });
-            });
-            // sort the features by name, then update the data table
-            features.sort((a, b) => a.name.localeCompare(b.name));
-            this.dataSource.data = features;
-          })
-        });
+      this.updateListAfterViewChange(layerView);
+    });
+  }
+  // do a one-time update of the list when the view is done updating
+  updateListFromView(layerView: __esri.FeatureLayerView): void {
+    whenOnce(() => !layerView.updating).then(() => {
+      this.updateDataSource(layerView);
+    });
+  }
+  // update the list every time the view changes
+  updateListAfterViewChange(layerView: __esri.FeatureLayerView): void {
+    when(
+      () => !layerView.updating,
+      (val) => {
+        this.updateDataSource(layerView);
+      });
+  }
+  updateDataSource(layerView: __esri.FeatureLayerView): void {
+    // get all the features in view from the layerView
+    layerView.queryFeatures().then((results) => {
+      let features: any[] = [];
+      // add to array with just the name for display and the id for selection / tracking
+      results.features.forEach((feature) => {
+        features.push({ id: feature.attributes.OBJECTID, name: feature.attributes.name });
+      });
+      // sort the features by name, then update the data table
+      features.sort((a, b) => a.name.localeCompare(b.name));
+      this.dataSource.data = features;
     });
   }
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
   }
+  // select the feature in the map associated with the selected row in the table
   selectFeature(row: any): void {
+    // query by unique OBJECTID
     let query = this.featureLayerView.createQuery();
     query.where = `OBJECTID = ${row.id}`;
 
     this.featureLayerView.queryFeatures(query).then((results) => {
       if (results.features.length > 0) {
+        // searching by id, there should only be one feature found.
+        // open the popup for the feature and center the view on it
         const feature = results.features[0];
-        this.featureLayerView.view.popup.close();
-        this.featureLayerView.view.popup.open({
+        this.featureLayerView.view.openPopup({
           features: [feature],
           updateLocationEnabled: true
         });
-
       }
     });
   }
+  // select the row the user clicked on
   selectRow(row: any): void {
     if (this.selectedRow !== row) {
       this.selectedRow = row;

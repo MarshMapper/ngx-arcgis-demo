@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { FeatureListComponent } from './feature-list.component';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('FeatureListComponent', () => {
   let component: FeatureListComponent;
@@ -8,7 +8,7 @@ describe('FeatureListComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FeatureListComponent]
+      imports: [FeatureListComponent, NoopAnimationsModule]
     })
     .compileComponents();
     
