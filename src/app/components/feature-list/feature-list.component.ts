@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { map, Observable, shareReplay } from 'rxjs';
-import { AfterViewInit, Component, inject, Input, OnInit, ViewChild } from '@angular/core';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { Observable } from 'rxjs';
+import { AfterViewInit, Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatPaginatorIntl, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { when, whenOnce } from '@arcgis/core/core/reactiveUtils';
+import { BreakpointService } from '../../services/breakpoint.service';
 
 function getRangeLabel(page: number, pageSize: number, length: number): string {
   if (length === 0 || pageSize === 0) {
@@ -36,7 +36,6 @@ function CustomPaginator() {
 })
 export class FeatureListComponent implements OnInit, AfterViewInit {
   public isSmallPortrait: boolean = false;
-  private breakpointObserver = inject(BreakpointObserver);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @Input() featureLayerView$!: Observable<__esri.FeatureLayerView>;
   featureLayerView!: __esri.FeatureLayerView;
@@ -45,15 +44,10 @@ export class FeatureListComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['name']; // Only 'name' column is displayed
   dataSource = new MatTableDataSource();
 
-  isSmallPortrait$ = this.breakpointObserver.observe([
-    Breakpoints.TabletPortrait,
-    Breakpoints.HandsetPortrait])
-    .pipe(
-      map(result => result.matches),
-      shareReplay()
-    );
- ngOnInit(): void {
-    this.isSmallPortrait$.subscribe((isSmallPortrait) => {
+  constructor(private breakpointService: BreakpointService) { }
+
+  ngOnInit(): void {
+    this.breakpointService.isSmallPortrait$.subscribe((isSmallPortrait) => {
       this.isSmallPortrait = isSmallPortrait;
     });
     // parent component will pass in the featureLayerView observable and emit a new value
