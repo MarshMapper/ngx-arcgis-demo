@@ -1,12 +1,9 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { defineCustomElements } from "@arcgis/map-components/dist/loader";
 import { defineCustomElements as defineCalciteElements } from "@esri/calcite-components/dist/loader";
 import { CommonModule } from '@angular/common';
 import { ComponentLibraryModule } from '@arcgis/map-components-angular';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatTabsModule } from '@angular/material/tabs';
-
-import { map, shareReplay } from 'rxjs/operators';
 import { CalciteComponentsModule } from '@esri/calcite-components-angular';
 import { ProtectedAreasService } from '../../services/protected-areas.service';
 import { UnprotectedAreasService } from '../../services/unprotected-areas.service';
@@ -22,6 +19,7 @@ import Layer from '@arcgis/core/layers/Layer';
 import { FeatureListComponent } from "../feature-list/feature-list.component";
 import { BehaviorSubject, Subject } from 'rxjs';
 import { LayerControlPanelComponent } from "../layer-control-panel/layer-control-panel.component";
+import { BreakpointService } from '../../services/breakpoint.service';
 
 @Component({
   selector: 'app-arc-map',
@@ -35,21 +33,14 @@ export class ArcMapComponent implements OnInit {
   public isLoading: boolean = true;
   public showInfoPanel: boolean = true;
   public isSmallPortrait: boolean = false;
-  private breakpointObserver = inject(BreakpointObserver);
   public protectedLayerViewSubject: Subject<__esri.FeatureLayerView> = new Subject<__esri.FeatureLayerView>();
   public overlayLayersSubject: BehaviorSubject<Layer[]> = new BehaviorSubject<Layer[]>([]);
 
-  isSmallPortrait$ = this.breakpointObserver.observe([
-    Breakpoints.TabletPortrait,
-    Breakpoints.HandsetPortrait])
-    .pipe(
-      map(result => result.matches),
-      shareReplay()
-    );
   constructor(private protectedAreasService: ProtectedAreasService,
     private unprotectedAreasService: UnprotectedAreasService,
     private njHistoricalMapsService: NjHistoricalMapsService,
-    private progressService: ProgressService
+    private progressService: ProgressService,
+    private breakpointService: BreakpointService
   ) { }
 
   arcgisViewReadyChange(event: any) {
@@ -110,7 +101,7 @@ export class ArcMapComponent implements OnInit {
   ngOnInit(): void {
     defineCustomElements(window, { resourcesUrl: "https://js.arcgis.com/map-components/4.29/assets" });
     defineCalciteElements(window, { resourcesUrl: "https://js.arcgis.com/calcite-components/2.5.1/assets" });
-    this.isSmallPortrait$.subscribe((isSmallPortrait) => {
+    this.breakpointService.isSmallPortrait$.subscribe((isSmallPortrait) => {
       this.isSmallPortrait = isSmallPortrait;
     });
     this.progressService.setWorkInProgress(true);

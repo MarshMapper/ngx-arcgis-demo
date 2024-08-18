@@ -1,10 +1,10 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import Layer from '@arcgis/core/layers/Layer';
-import { map, Observable, shareReplay } from 'rxjs';
+import { Observable } from 'rxjs';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSliderModule } from '@angular/material/slider';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { BreakpointService } from '../../services/breakpoint.service';
 
 @Component({
   selector: 'app-layer-control-panel',
@@ -16,16 +16,11 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 export class LayerControlPanelComponent implements OnInit {
   @Input() overlayLayers$!: Observable<Layer[]>;
   public isSmallPortrait: boolean = false;
-  private breakpointObserver = inject(BreakpointObserver);
-  isSmallPortrait$ = this.breakpointObserver.observe([
-    Breakpoints.TabletPortrait,
-    Breakpoints.HandsetPortrait])
-    .pipe(
-      map(result => result.matches),
-      shareReplay()
-    );
+
+  constructor(private breakpointService: BreakpointService) { }
+
   ngOnInit(): void {
-    this.isSmallPortrait$.subscribe((isSmallPortrait) => {
+    this.breakpointService.isSmallPortrait$.subscribe((isSmallPortrait) => {
       this.isSmallPortrait = isSmallPortrait;
     });
   }
