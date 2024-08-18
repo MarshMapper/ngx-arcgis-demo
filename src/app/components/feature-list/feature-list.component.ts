@@ -37,7 +37,9 @@ export class FeatureListComponent implements OnInit, AfterViewInit {
   public isSmallPortrait: boolean = false;
   private breakpointObserver = inject(BreakpointObserver);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @Input() featureLayerView!: Observable<__esri.FeatureLayerView>;
+  @Input() featureLayerView$!: Observable<__esri.FeatureLayerView>;
+  featureLayerView!: __esri.FeatureLayerView;
+  selectedRow: any = null;
 
   displayedColumns: string[] = ['name']; // Only 'name' column is displayed
   dataSource = new MatTableDataSource();
@@ -49,16 +51,14 @@ export class FeatureListComponent implements OnInit, AfterViewInit {
       map(result => result.matches),
       shareReplay()
     );
-  getFeatureContainerClass(): string {
-    return this.isSmallPortrait ? 'feature-table-container-vertical' : 'feature-table-container-horizontal';
-  }
-  ngOnInit(): void {
+ ngOnInit(): void {
     this.isSmallPortrait$.subscribe((isSmallPortrait) => {
       this.isSmallPortrait = isSmallPortrait;
     });
     // parent component will pass in the featureLayerView observable and emit a new value
     // each time the view changes
-    this.featureLayerView.subscribe((layerView: __esri.FeatureLayerView) => {
+    this.featureLayerView$.subscribe((layerView: __esri.FeatureLayerView) => {
+      this.featureLayerView = layerView;
       when(
         () => !layerView.updating,
         (val) => {
@@ -67,7 +67,7 @@ export class FeatureListComponent implements OnInit, AfterViewInit {
             let features: any[] = [];
             // add to array with just the name for display and the id for selection / tracking
             results.features.forEach((feature) => {
-              features.push({ id: feature.attributes.id, name: feature.attributes.name });
+              features.push({ id: feature.attributes.OBJECTID, name: feature.attributes.name });
             });
             // sort the features by name, then update the data table
             features.sort((a, b) => a.name.localeCompare(b.name));
@@ -78,5 +78,30 @@ export class FeatureListComponent implements OnInit, AfterViewInit {
   }
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
+  }
+  selectFeature(row: any): void {
+    let query = this.featureLayerView.createQuery();
+    query.where = `OBJECTID = ${row.id}`;
+
+    this.featureLayerView.queryFeatures(query).then((results) => {
+      if (results.features.length > 0) {
+        const feature = results.features[0];
+        this.featureLayerView.view.popup.close();
+        this.featureLayerView.view.popup.open({
+          features: [feature],
+          updateLocationEnabled: true
+        });
+
+      }
+    });
+  }
+  selectRow(row: any): void {
+    if (this.selectedRow !== row) {
+      this.selectedRow = row;
+      this.selectFeature(row);
+    }
+  }
+  getFeatureContainerClass(): string {
+    return this.isSmallPortrait ? 'feature-table-container-vertical' : 'feature-table-container-horizontal';
   }
 }
