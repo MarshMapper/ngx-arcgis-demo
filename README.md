@@ -1,7 +1,7 @@
 # ngx-arcgis-demo
 Demo project integrating [ArcGIS Maps SDK for JavaScript (4.30)](https://developers.arcgis.com/javascript/latest/) 
 and [Calcite Web Comoponents](https://developers.arcgis.com/javascript/latest/calcite-design-system/) with Angular 
-and Angular Material 17.x for navigation and layout.  An inital goal was to integrate real-time data from external 
+and Angular Material 18.x for navigation and layout.  An inital goal was to integrate real-time data from external 
 APIs with the high-level components provided in the SDK. These include the 
 [eBird API](https://documenter.getpostman.com/view/664302/S1ENwy59) for observation data and NOAA APIs
 for weather and tides.
@@ -11,7 +11,7 @@ The project is automatically deployed to Azure using GitHub Actions each time ch
 Static Web App that uses the Azure CDN for caching and delivery:  
 [https://icy-wave-0bf8df410.5.azurestaticapps.net/](https://icy-wave-0bf8df410.5.azurestaticapps.net/)
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.1.3 and can
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) and can
 be built and deployed using the standard Angular CLI commands.  It uses the "application" build target.  Addtionally,
 it uses the dotenv-run wrapper around the dotenv package to access environment variables.  A required environment variable
 for the eBird API is the API key.  This can be obtained by creating an account at the eBird website and generating a key.

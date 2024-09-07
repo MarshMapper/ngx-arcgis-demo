@@ -1,6 +1,6 @@
 // Other imports
 import { TestBed } from '@angular/core/testing';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { UnprotectedAreasService } from './unprotected-areas.service';
 
 describe('UnprotectedAreasService', () => {
@@ -8,8 +8,9 @@ describe('UnprotectedAreasService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [ HttpClientModule ]
-    });
+    imports: [],
+    providers: [provideHttpClient(withInterceptorsFromDi())]
+});
     service = TestBed.inject(UnprotectedAreasService);
   });
 
