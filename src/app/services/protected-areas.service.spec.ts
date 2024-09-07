@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { ProtectedAreasService } from './protected-areas.service';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 
 describe('ProtectedAreasService', () => {
@@ -9,11 +9,12 @@ describe('ProtectedAreasService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [ HttpClientModule ],
-      providers: [
-        provideRouter([{path:'', component: ProtectedAreasService}])
-      ]
-    });
+    imports: [],
+    providers: [
+        provideRouter([{ path: '', component: ProtectedAreasService }]),
+        provideHttpClient(withInterceptorsFromDi())
+    ]
+});
     service = TestBed.inject(ProtectedAreasService);
   });
 
