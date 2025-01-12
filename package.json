@@ -33,6 +33,7 @@
     "ws": "^8.17.1"
   },
   "devDependencies": {
+    "@angular-devkit/build-angular": "^19.0.7",
     "@angular/build": "^19.0.7",
     "@angular/cli": "^19.0.7",
     "@angular/compiler-cli": "^19.0.6",
