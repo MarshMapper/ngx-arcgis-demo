@@ -1,33 +1,43 @@
-import { Component, OnInit } from '@angular/core';
-import { defineCustomElements } from "@arcgis/map-components/dist/loader";
-import { defineCustomElements as defineCalciteElements } from "@esri/calcite-components/dist/loader";
+import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ComponentLibraryModule } from '@arcgis/map-components-angular';
 import { MatTabsModule } from '@angular/material/tabs';
-import { CalciteComponentsModule } from '@esri/calcite-components-angular';
-import { ProtectedAreasService } from '../../services/protected-areas.service';
-import { UnprotectedAreasService } from '../../services/unprotected-areas.service';
-import { ProgressService } from '../../services/progress.service';
+import { BehaviorSubject, Subject } from 'rxjs';
+
+// ArgGIS and Calcite components now use ES6 style imports
+import "@arcgis/map-components/dist/components/arcgis-map";
+import "@arcgis/map-components/dist/components/arcgis-zoom";
+import "@arcgis/map-components/dist/components/arcgis-expand";
+import "@arcgis/map-components/dist/components/arcgis-layer-list";
+import "@arcgis/map-components/dist/components/arcgis-search";
+import "@arcgis/map-components/dist/components/arcgis-legend";
+import '@arcgis/map-components/dist/components/arcgis-basemap-gallery';
+import "@esri/calcite-components/dist/loader";
 import Map from "@arcgis/core/Map";
 import ImageryTileLayer from '@arcgis/core/layers/ImageryTileLayer';
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 import View from "@arcgis/core/views/View";
+import Layer from '@arcgis/core/layers/Layer';
 import LayerView from "@arcgis/core/views/layers/LayerView";
 import { whenOnce } from '@arcgis/core/core/reactiveUtils';
+
+import { ProtectedAreasService } from '../../services/protected-areas.service';
+import { UnprotectedAreasService } from '../../services/unprotected-areas.service';
+import { ProgressService } from '../../services/progress.service';
 import { NjHistoricalMapsService, NjHistoricalMapType } from '../../services/nj-historical-maps.service';
-import Layer from '@arcgis/core/layers/Layer';
 import { FeatureListComponent } from "../feature-list/feature-list.component";
-import { BehaviorSubject, Subject } from 'rxjs';
 import { LayerControlPanelComponent } from "../layer-control-panel/layer-control-panel.component";
 import { BreakpointService } from '../../services/breakpoint.service';
+
+import { setAssetPath } from "@esri/calcite-components/dist/components";
+setAssetPath("https://cdn.jsdelivr.net/npm/@esri/calcite-components/dist/calcite/assets");
 
 @Component({
   selector: 'app-arc-map',
   standalone: true,
-  imports: [CommonModule, ComponentLibraryModule, CalciteComponentsModule, MatTabsModule, FeatureListComponent, LayerControlPanelComponent],
-
+  imports: [CommonModule, MatTabsModule, FeatureListComponent, LayerControlPanelComponent],
   templateUrl: './arc-map.component.html',
-  styleUrl: './arc-map.component.scss'
+  styleUrl: './arc-map.component.scss',
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ArcMapComponent implements OnInit {
   public isLoading: boolean = true;
@@ -36,11 +46,11 @@ export class ArcMapComponent implements OnInit {
   public protectedLayerViewSubject: Subject<__esri.FeatureLayerView> = new Subject<__esri.FeatureLayerView>();
   public overlayLayersSubject: BehaviorSubject<Layer[]> = new BehaviorSubject<Layer[]>([]);
 
-  constructor(private protectedAreasService: ProtectedAreasService,
-    private unprotectedAreasService: UnprotectedAreasService,
-    private njHistoricalMapsService: NjHistoricalMapsService,
-    private progressService: ProgressService,
-    private breakpointService: BreakpointService
+  constructor(private readonly protectedAreasService: ProtectedAreasService,
+    private readonly unprotectedAreasService: UnprotectedAreasService,
+    private readonly njHistoricalMapsService: NjHistoricalMapsService,
+    private readonly progressService: ProgressService,
+    private readonly breakpointService: BreakpointService
   ) { }
 
   arcgisViewReadyChange(event: any) {
@@ -99,8 +109,6 @@ export class ArcMapComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    defineCustomElements(window, { resourcesUrl: "https://js.arcgis.com/map-components/4.29/assets" });
-    defineCalciteElements(window, { resourcesUrl: "https://js.arcgis.com/calcite-components/2.5.1/assets" });
     this.breakpointService.isSmallPortrait$.subscribe((isSmallPortrait) => {
       this.isSmallPortrait = isSmallPortrait;
     });
