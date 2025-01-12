@@ -7,11 +7,10 @@ import { MatSliderModule } from '@angular/material/slider';
 import { BreakpointService } from '../../services/breakpoint.service';
 
 @Component({
-  selector: 'app-layer-control-panel',
-  standalone: true,
-  imports: [CommonModule, MatSlideToggleModule, MatSliderModule],
-  templateUrl: './layer-control-panel.component.html',
-  styleUrl: './layer-control-panel.component.scss'
+    selector: 'app-layer-control-panel',
+    imports: [CommonModule, MatSlideToggleModule, MatSliderModule],
+    templateUrl: './layer-control-panel.component.html',
+    styleUrl: './layer-control-panel.component.scss'
 })
 export class LayerControlPanelComponent implements OnInit {
   @Input() overlayLayers$!: Observable<Layer[]>;

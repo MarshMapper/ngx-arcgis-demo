@@ -15,7 +15,6 @@ import { BehaviorSubject } from 'rxjs';
     selector: 'app-global-navigation',
     templateUrl: './global-navigation.component.html',
     styleUrl: './global-navigation.component.scss',
-    standalone: true,
     imports: [
         MatToolbarModule,
         MatButtonModule,
