@@ -23,9 +23,9 @@ export class EbirdService {
   hotspotsLayer: FeatureLayer | undefined = undefined;
   hotspotsSubscription: Subscription | undefined = undefined;
 
-  constructor(private httpClient: HttpClient,
-    private snackBar: MatSnackBar,
-    private progressService: ProgressService
+  constructor(private readonly httpClient: HttpClient,
+    private readonly snackBar: MatSnackBar,
+    private readonly progressService: ProgressService
   ) {
     this.ebirdApiKey = import.meta.env.NG_APP_EBIRD_API_KEY;
   }
