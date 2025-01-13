@@ -32,12 +32,11 @@ import { setAssetPath } from "@esri/calcite-components/dist/components";
 setAssetPath("https://cdn.jsdelivr.net/npm/@esri/calcite-components/dist/calcite/assets");
 
 @Component({
-  selector: 'app-arc-map',
-  standalone: true,
-  imports: [CommonModule, MatTabsModule, FeatureListComponent, LayerControlPanelComponent],
-  templateUrl: './arc-map.component.html',
-  styleUrl: './arc-map.component.scss',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    selector: 'app-arc-map',
+    imports: [CommonModule, MatTabsModule, FeatureListComponent, LayerControlPanelComponent],
+    templateUrl: './arc-map.component.html',
+    styleUrl: './arc-map.component.scss',
+    schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ArcMapComponent implements OnInit {
   public isLoading: boolean = true;

@@ -25,14 +25,13 @@ function CustomPaginator() {
   return customPaginatorIntl;
 }
 @Component({
-  selector: 'app-feature-list',
-  standalone: true,
-  imports: [CommonModule, MatPaginatorModule, MatTableModule, MatSortModule ], 
-  providers: [
-    { provide: MatPaginatorIntl, useValue: CustomPaginator() }
-  ],
-  templateUrl: './feature-list.component.html',
-  styleUrl: './feature-list.component.scss'
+    selector: 'app-feature-list',
+    imports: [CommonModule, MatPaginatorModule, MatTableModule, MatSortModule],
+    providers: [
+        { provide: MatPaginatorIntl, useValue: CustomPaginator() }
+    ],
+    templateUrl: './feature-list.component.html',
+    styleUrl: './feature-list.component.scss'
 })
 export class FeatureListComponent implements OnInit, AfterViewInit {
   public isSmallPortrait: boolean = false;

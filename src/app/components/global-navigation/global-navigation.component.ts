@@ -6,7 +6,6 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBar, MatProgressBarModule } from '@angular/material/progress-bar';
-import { ArcMapComponent } from "../arc-map/arc-map.component";
 import { RouterModule } from '@angular/router';
 import { ProgressService } from '../../services/progress.service';
 import { BehaviorSubject } from 'rxjs';
@@ -15,7 +14,6 @@ import { BehaviorSubject } from 'rxjs';
     selector: 'app-global-navigation',
     templateUrl: './global-navigation.component.html',
     styleUrl: './global-navigation.component.scss',
-    standalone: true,
     imports: [
         MatToolbarModule,
         MatButtonModule,
@@ -24,15 +22,14 @@ import { BehaviorSubject } from 'rxjs';
         MatIconModule,
         MatProgressBarModule,
         RouterModule,
-        AsyncPipe,
-        ArcMapComponent
+        AsyncPipe
     ]
 })
 export class GlobalNavigationComponent {
     @ViewChild('loadingIndicator') loadingIndicator!: MatProgressBar;
     showProgressBar$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-    constructor(private progressService: ProgressService) { 
+    constructor(private readonly progressService: ProgressService) { 
     }
     ngAfterViewInit() {
         this.progressService.getWorkInProgress().subscribe((workInProgress: boolean) => {
