@@ -1,7 +1,7 @@
 # ngx-arcgis-demo
-Demo project integrating [ArcGIS Maps SDK for JavaScript (4.30)](https://developers.arcgis.com/javascript/latest/) 
+Demo project integrating [ArcGIS Maps SDK for JavaScript (4.31)](https://developers.arcgis.com/javascript/latest/) 
 and [Calcite Web Comoponents](https://developers.arcgis.com/javascript/latest/calcite-design-system/) with Angular 
-and Angular Material 18.x for navigation and layout.  An inital goal was to integrate real-time data from external 
+and Angular Material 19.x for navigation and layout.  An inital goal was to integrate real-time data from external 
 APIs with the high-level components provided in the SDK. These include the 
 [eBird API](https://documenter.getpostman.com/view/664302/S1ENwy59) for observation data and NOAA APIs
 for weather and tides.
