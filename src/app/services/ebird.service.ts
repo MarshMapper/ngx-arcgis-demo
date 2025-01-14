@@ -27,7 +27,12 @@ export class EbirdService {
     private readonly snackBar: MatSnackBar,
     private readonly progressService: ProgressService
   ) {
-    this.ebirdApiKey = import.meta.env.NG_APP_EBIRD_API_KEY;
+    try {
+      this.ebirdApiKey = import.meta.env.NG_APP_EBIRD_API_KEY;
+    } 
+    catch (error) {
+      console.error("eBird API key not found");
+    }
   }
   // Get eBird hotspots near a given latitude and longitude
   // Distance is in kilometers
