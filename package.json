@@ -37,7 +37,7 @@
     "@angular/build": "^19.0.7",
     "@angular/cli": "^19.0.7",
     "@angular/compiler-cli": "^19.0.6",
-    "@ngx-env/builder": "18.0.1",
+    "@ngx-env/builder": "19.0.4",
     "@types/jasmine": "~5.1.0",
     "jasmine-core": "~5.1.0",
     "karma": "~6.4.0",
